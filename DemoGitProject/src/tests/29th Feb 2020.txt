@@ -1,0 +1,118 @@
+29 Feb 2020
+-------------------------------------------------------------------------------
+Creating HUB
+
+java -jar <Selenium jar file path> -role hub
+
+-------------------------------------------------------------------------------
+Configuring Node to run automation tests on firefox
+-------------------------------------------------------------------------------
+
+ java -Dwebdriver.gecko.driver=<GeckoDriver exe file path> -jar <Selenium jar file path>
+ 
+ -role webdriver -hub <HubServerIpAdd:4444/grid/register> -port <port number>
+ 
+ -browser browserName=firefox,maxInstancex=<no>
+
+---------------------------------------------------------------------------------
+Configuring Node to run automation tests on Chrome
+---------------------------------------------------------------------------------
+java -Dwebdriver.chrome.driver=<ChromeDriver exe file path> -jar <Selenium jar file path>
+ 
+ -role webdriver -hub <HubServerIpAdd:4444/grid/register> -port <port number>
+ 
+ -browser browserName=chrome,maxInstancex=<no>
+---------------------------------------------------------------------------------
+How to view Grid Console
+---------------------------------------------------------------------------------
+Open Any Browser
+
+type URL : http://HubServerIPAdd:4444/grid/console
+
+--------------------------------------------------------------------------------
+A Sample Grid Script 
+--------------------------------------------------------------------------------
+	public DesiredCapabilities cap;
+	public static RemoteWebDriver driver;
+	public static String appurl="http://orangehrm.qedgetech.com";
+	
+	@Test
+	public void test1() throws MalformedURLException, InterruptedException
+	{
+		
+		cap=DesiredCapabilities.chrome();
+		cap.setBrowserName("chrome");
+		//cap.setPlatform(Platform.WINDOWS);
+		
+	    driver=new RemoteWebDriver(new URL("http://192.168.1.200:4444/wd/hub"), cap);
+		driver.get(appurl);
+		
+		Thread.sleep(5000);		
+		driver.close();		
+	}
+
+----------------------------------------------------------------------------------------
+TestNG.xml  Script to execute Tests in Sequetially / paralelly in Grid
+-----------------------------------------------------------------------------------
+<suite name="Demo Suite" parallel="none">
+	
+	<test name="A Sample Test on Chrome">
+	<parameter name="br" value="chrome"></parameter>
+		<classes>
+			<class name="tests.GridTest"></class>	
+		</classes>	
+	</test>
+
+	<test name="A Sample Test on Firefox">
+	<parameter name="br" value="firefox"></parameter>
+		<classes>
+			<class name="tests.GridTest"></class>	
+		</classes>	
+	</test>
+</suite>
+-----------------------------------------------------------------------------
+tests.GridTest Code
+-----------------------------------------------------------------------------
+public class GridTest {
+	
+	public DesiredCapabilities cap;
+	public static RemoteWebDriver driver;
+	public static String appurl="http://orangehrm.qedgetech.com";
+	
+	@Parameters({"br"})
+	@BeforeTest
+	public void launchApp(String browser)
+	{
+		if(browser.equalsIgnoreCase("firefox"))
+		{
+			cap=DesiredCapabilities.firefox();
+			cap.setBrowserName("firefox");
+		}else if(browser.equalsIgnoreCase("chrome"))			
+		{
+			cap=DesiredCapabilities.chrome();
+			cap.setBrowserName("chrome");
+		}		
+	}
+		
+		
+	@Test
+	public void test1() throws MalformedURLException, InterruptedException 
+	{
+		driver=new RemoteWebDriver(new URL("http://192.168.1.200:4444/wd/hub"), cap);
+		driver.get(appurl);
+		Thread.sleep(10000);
+	}
+	
+	@AfterTest
+	public void closeApp()
+	{
+		driver.close();
+	}
+-----------------------------------------------------------------------------------------
+
+
+
+
+
+
+
